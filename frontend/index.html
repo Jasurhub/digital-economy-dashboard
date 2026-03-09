@@ -9,11 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Unbounded:wght@300;600;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet"/>
 <style>
-/* ═══════════════════════════════════════════════
-   DESIGN SYSTEM  ─  UZ Digital Economy Dashboard
-   Theme: "Soviet Constructivism meets Cyber"
-   Palette: Deep navy + Electric teal + Amber pulse
-   ═══════════════════════════════════════════════ */
+
 :root {
   --bg-base:   #060d1a;
   --bg-panel:  #0b1629;
@@ -51,7 +47,6 @@ body {
   overflow-x: hidden;
 }
 
-/* ── Grid noise texture ── */
 body::before {
   content: '';
   position: fixed; inset: 0; z-index: 0; pointer-events: none;
@@ -60,7 +55,6 @@ body::before {
     repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(0,212,170,.03) 40px);
 }
 
-/* ─────────────── HEADER ──────────────────────── */
 #header {
   position: sticky; top: 0; z-index: 100;
   display: flex; align-items: center; justify-content: space-between;
@@ -121,7 +115,6 @@ body::before {
   50%       { opacity: .3; }
 }
 
-/* ─────────────── SIDEBAR ─────────────────────── */
 #sidebar {
   position: fixed; top: 60px; left: 0; bottom: 0;
   width: 220px; z-index: 50;
@@ -161,7 +154,6 @@ body::before {
 }
 .nav-icon { font-size: 15px; }
 
-/* ─────────────── MAIN ────────────────────────── */
 #main {
   margin-left: 220px;
   padding: 24px;
@@ -169,7 +161,6 @@ body::before {
   position: relative; z-index: 1;
 }
 
-/* ─────────────── FILTERS BAR ─────────────────── */
 #filters {
   display: flex; align-items: center; gap: 12px;
   padding: 12px 16px;
@@ -215,7 +206,6 @@ body::before {
 .btn-scrape:hover { background: rgba(0,212,170,.22); border-color: var(--teal); }
 .btn-scrape.loading { opacity: .6; pointer-events: none; }
 
-/* ─────────────── KPI CARDS ───────────────────── */
 #kpi-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -258,7 +248,6 @@ body::before {
 .kpi-growth.up   { color: var(--teal);  background: rgba(0,212,170,.12); }
 .kpi-growth.down { color: var(--red);   background: rgba(255,74,110,.12); }
 
-/* ─────────────── CHART AREA ──────────────────── */
 #charts-area {
   display: grid;
   grid-template-columns: 2fr 1fr;
@@ -300,7 +289,6 @@ body::before {
 
 .chart-canvas-wrap { position: relative; height: 280px; }
 
-/* ─────────────── GROWTH TABLE ────────────────── */
 #growth-section { margin-bottom: 16px; }
 
 .data-table {
@@ -334,7 +322,6 @@ body::before {
   opacity: .6;
 }
 
-/* ─────────────── SCRAPE STATUS ───────────────── */
 #status-bar {
   display: flex; align-items: center; gap: 16px;
   padding: 10px 16px;
@@ -349,7 +336,6 @@ body::before {
 .status-ok   { color: var(--teal); }
 .status-err  { color: var(--red); }
 
-/* ─────────────── LOADING ─────────────────────── */
 .spinner {
   display: inline-block; width: 14px; height: 14px;
   border: 2px solid var(--border);
@@ -359,7 +345,6 @@ body::before {
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ─────────────── TOAST ───────────────────────── */
 #toast {
   position: fixed; bottom: 24px; right: 24px; z-index: 999;
   padding: 12px 20px;
@@ -374,7 +359,6 @@ body::before {
 }
 #toast.show { transform: translateY(0); opacity: 1; }
 
-/* ─────────────── SECTION LABEL ──────────────── */
 .section-label {
   font-family: var(--font-mono); font-size: 9px; letter-spacing: .2em;
   color: var(--text-3); text-transform: uppercase;
@@ -385,14 +369,12 @@ body::before {
   content: ''; flex: 1; height: 1px; background: var(--border);
 }
 
-/* ─────────────── RESPONSIVE ─────────────────── */
 @media (max-width: 900px) {
   #sidebar { display: none; }
   #main    { margin-left: 0; padding: 16px; }
   #charts-area { grid-template-columns: 1fr; }
 }
 
-/* ─────────────── SCROLL BAR ─────────────────── */
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: var(--bg-base); }
 ::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 2px; }
@@ -400,7 +382,6 @@ body::before {
 </head>
 <body>
 
-<!-- ═══ HEADER ═══ -->
 <header id="header">
   <div class="logo">
     <div class="logo-badge">RI</div>
@@ -422,23 +403,19 @@ body::before {
   </div>
 </header>
 
-<!-- ═══ SIDEBAR ═══ -->
 <nav id="sidebar">
   <div class="nav-section-title" id="nav-all-label">BARCHA KO'RSATKICHLAR</div>
   <div id="nav-items"></div>
 </nav>
 
-<!-- ═══ MAIN ═══ -->
 <main id="main">
 
-  <!-- Status bar -->
   <div id="status-bar">
     <span id="scrape-status">⏳ Yuklanmoqda…</span>
     <span id="db-count"></span>
     <a href="/docs" target="_blank" style="color:var(--teal);text-decoration:none;margin-left:auto">API Docs →</a>
   </div>
 
-  <!-- Filters -->
   <div id="filters">
     <span class="filter-label" id="fl-cat">KATEGORIYA:</span>
     <select class="filter-select" id="cat-filter">
@@ -451,14 +428,11 @@ body::before {
     <button class="btn-scrape" id="scrape-btn" onclick="triggerScrape()">⟳ YANGILASH</button>
   </div>
 
-  <!-- KPI cards -->
   <div class="section-label" id="sl-kpi">KPI BLOKLARI</div>
   <div id="kpi-grid"></div>
 
-  <!-- Charts -->
   <div class="section-label" id="sl-charts">GRAFIK TAHLIL</div>
   <div id="charts-area">
-    <!-- Line chart -->
     <div class="chart-panel">
       <div class="panel-header">
         <div>
@@ -476,7 +450,6 @@ body::before {
       </div>
     </div>
 
-    <!-- Bar chart – Category totals -->
     <div class="chart-panel">
       <div class="panel-header">
         <div>
@@ -489,7 +462,6 @@ body::before {
       </div>
     </div>
 
-    <!-- Multi-line comparison chart -->
     <div class="chart-panel chart-panel-full">
       <div class="panel-header">
         <div>
@@ -503,7 +475,6 @@ body::before {
     </div>
   </div>
 
-  <!-- Growth table -->
   <div class="section-label" id="sl-growth">O'SISH TAHLILI</div>
   <div class="chart-panel" id="growth-section">
     <div id="growth-table-wrap"></div>
@@ -511,17 +482,12 @@ body::before {
 
 </main>
 
-<!-- Toast -->
 <div id="toast"></div>
 
 <script>
-// ═══════════════════════════════════════════
-//  DASHBOARD CONTROLLER
-// ═══════════════════════════════════════════
 
 const API = window.location.origin;
 
-// State
 let lang         = 'uz';
 let allKpis      = [];
 let allGrowth    = [];
@@ -531,12 +497,10 @@ let lineType     = 'line';
 let yearFrom     = null;
 let yearTo       = null;
 
-// Chart instances
 let lineChartInst    = null;
 let barChartInst     = null;
 let compareChartInst = null;
 
-// ── i18n labels ─────────────────────────────
 const i18n = {
   uz: {
     kpiSection:   'KPI BLOKLARI',
@@ -608,7 +572,6 @@ const i18n = {
 
 function t(key) { return (i18n[lang] || i18n.uz)[key] || key; }
 
-// ── Chart.js defaults ─────────────────────────
 Chart.defaults.color           = '#8ba4c8';
 Chart.defaults.font.family     = "'IBM Plex Mono', monospace";
 Chart.defaults.font.size       = 10;
@@ -617,7 +580,6 @@ Chart.defaults.plugins.legend.display = false;
 
 const COLORS = ['#00d4aa','#f5a623','#3a9bdc','#ff4a6e','#a78bfa','#34d399'];
 
-// ── API helpers ───────────────────────────────
 async function api(path) {
   const r = await fetch(`${API}${path}`);
   if (!r.ok) throw new Error(`${r.status}`);
@@ -630,7 +592,6 @@ async function apiPost(path) {
   return r.json();
 }
 
-// ── Init ──────────────────────────────────────
 async function init() {
   await Promise.all([
     loadCategories(),
@@ -642,7 +603,6 @@ async function init() {
   applyFilters();
 }
 
-// ── Categories ────────────────────────────────
 async function loadCategories() {
   categories = await api(`/api/categories?lang=${lang}`);
   renderNav();
@@ -667,7 +627,6 @@ function renderCatFilter() {
     categories.map(c => `<option value="${c.slug}" ${cur===c.slug?'selected':''}>${c.icon} ${c.name}</option>`).join('');
 }
 
-// ── KPI ──────────────────────────────────────
 async function loadKpis() {
   allKpis = await api(`/api/kpi?lang=${lang}`);
   renderKpis(allKpis);
@@ -697,7 +656,6 @@ function renderKpis(kpis) {
   }).join('');
 }
 
-// ── Select indicator ──────────────────────────
 function selectIndicator(slug, name, unit) {
   selectedSlug = slug;
   document.querySelectorAll('.kpi-card').forEach(c => c.classList.remove('selected'));
@@ -705,7 +663,6 @@ function selectIndicator(slug, name, unit) {
   loadLineChart(slug, name, unit);
 }
 
-// ── Line Chart ────────────────────────────────
 async function loadLineChart(slug, name, unit) {
   const params = new URLSearchParams({ lang });
   if (yearFrom) params.set('year_from', yearFrom);
@@ -770,7 +727,6 @@ function setLineType(type) {
   }
 }
 
-// ── CAGR Bar Chart ────────────────────────────
 async function loadGrowth() {
   allGrowth = await api(`/api/growth?lang=${lang}`);
   renderBarChart(allGrowth);
@@ -830,7 +786,6 @@ function renderGrowthTable(growth) {
     </table>`;
 }
 
-// ── Comparison Chart ──────────────────────────
 async function loadCompare() {
   // Compare top 5 indicators across categories
   const slugs = [
@@ -885,7 +840,6 @@ function renderCompareChart(data) {
   });
 }
 
-// ── Scrape status ─────────────────────────────
 async function loadScrapeStatus() {
   try {
     const s = await api('/api/scrape/status');
@@ -903,14 +857,12 @@ async function loadScrapeStatus() {
     document.getElementById('scrape-status').textContent = '● API ulanmagan (standalone rejim)';
   }
 
-  // Count records
   try {
     const kpis = await api(`/api/kpi?lang=${lang}`);
     document.getElementById('db-count').textContent = `${kpis.length} ko'rsatkich`;
   } catch(e) {}
 }
 
-// ── Trigger scrape ────────────────────────────
 async function triggerScrape() {
   const btn = document.getElementById('scrape-btn');
   btn.textContent = '⟳ …'; btn.classList.add('loading');
@@ -926,7 +878,6 @@ async function triggerScrape() {
   btn.textContent = t('refreshBtn'); btn.classList.remove('loading');
 }
 
-// ── Filters ───────────────────────────────────
 function applyFilters() {
   const cat  = document.getElementById('cat-filter').value;
   yearFrom   = parseInt(document.getElementById('year-from').value) || null;
@@ -946,7 +897,6 @@ function filterByCategory(slug) {
   document.querySelector(`.nav-item[onclick*="${slug}"]`)?.classList.add('active');
 }
 
-// ── Language switch ───────────────────────────
 document.querySelectorAll('.lang-btn').forEach(btn => {
   btn.addEventListener('click', async () => {
     lang = btn.dataset.lang;
@@ -980,12 +930,10 @@ function updateI18n() {
   document.getElementById('btn-area').textContent                = t('areaBtn');
 }
 
-// ── Realtime filter events ────────────────────
 document.getElementById('cat-filter').addEventListener('change', applyFilters);
 document.getElementById('year-from').addEventListener('change',  applyFilters);
 document.getElementById('year-to').addEventListener('change',    applyFilters);
 
-// ── Utilities ─────────────────────────────────
 function fmtVal(v) {
   if (v === null || v === undefined) return '—';
   if (v >= 1e9) return (v/1e9).toFixed(1)+'B';
@@ -1007,16 +955,13 @@ function toast(msg, err=false) {
   _toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
 }
 
-// ── Boot ──────────────────────────────────────
 init().catch(err => {
   console.error(err);
   document.getElementById('scrape-status').innerHTML =
     '<span style="color:var(--amber)">⚠ Backend ishlamayapti. Standart rejimda ishlayapti.</span>';
-  // Load standalone demo data if API is unavailable
   loadStandaloneDemo();
 });
 
-// ── Standalone demo (no backend) ──────────────
 async function loadStandaloneDemo() {
   const DEMO = {
     categories: [
@@ -1093,17 +1038,14 @@ async function loadStandaloneDemo() {
   document.getElementById('scrape-status').innerHTML =
     '<span style="color:var(--amber)">● Standalone rejim – demo ma\'lumotlar ko\'rsatilmoqda</span>';
 
-  // Auto-select first indicator
   const first = allKpis[0];
   const demoSeries = DEMO.series[first.slug] || DEMO.series['internet-users-pct'];
   renderLineChart(demoSeries, demoSeries.name, demoSeries.unit);
   document.getElementById('line-chart-title').textContent = demoSeries.name;
   document.getElementById('line-chart-sub').textContent   = `2017 – 2023 • ${demoSeries.unit}`;
 
-  // Click first KPI to highlight
   document.querySelectorAll('.kpi-card')[0]?.classList.add('selected');
 
-  // Wire KPI cards to demo data
   document.getElementById('kpi-grid').addEventListener('click', e => {
     const card = e.target.closest('.kpi-card');
     if (!card) return;
@@ -1124,7 +1066,6 @@ async function loadStandaloneDemo() {
     document.getElementById('line-chart-sub').textContent   = `${s.series[0].year} – ${s.series.at(-1).year} • ${kpi.unit}`;
   }, { capture: false });
 
-  // Filter
   document.getElementById('cat-filter').addEventListener('change', () => {
     const cat = document.getElementById('cat-filter').value;
     renderKpis(allKpis.filter(k => !cat || k.category === cat));

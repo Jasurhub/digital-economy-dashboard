@@ -1,4 +1,3 @@
-"""Entry point – run with: python main.py"""
 import uvicorn
 from app.api import app  # noqa: F401
 

@@ -1,6 +1,3 @@
-"""
-Database configuration and models for Digital Economy Statistics Dashboard
-"""
 import sqlite3
 import os
 import time
@@ -8,38 +5,24 @@ import fcntl
 from datetime import datetime
 
 DB_PATH   = os.environ.get("DB_PATH", "digital_economy.db")
-# A plain file used as a cross-process init lock (works on Linux / Docker)
 _LOCK_PATH = DB_PATH + ".initlock"
-# How long (seconds) each connection will wait for a busy lock before raising
 _BUSY_TIMEOUT_MS = 30_000   # 30 s
 
 
 def get_connection() -> sqlite3.Connection:
-    """Return a connection with WAL mode and a generous busy timeout."""
     conn = sqlite3.connect(DB_PATH, timeout=30)
     conn.row_factory = sqlite3.Row
-    # WAL lets readers and one writer coexist without blocking each other.
-    # Setting it per-connection is safe; SQLite ignores the call if WAL is
-    # already active for the file.
+
     conn.execute("PRAGMA journal_mode=WAL")
-    # Tell SQLite to retry for up to 30 s when the DB is busy before raising.
     conn.execute(f"PRAGMA busy_timeout={_BUSY_TIMEOUT_MS}")
-    # Slightly more relaxed durability — fine for analytics data.
     conn.execute("PRAGMA synchronous=NORMAL")
     return conn
 
 
 def init_db():
-    """
-    Create tables and indexes if they don't exist yet.
 
-    Uses an exclusive file lock so that when multiple uvicorn workers start
-    concurrently, only one actually runs the DDL; the others wait briefly and
-    then return once the schema is already in place.
-    """
     lock_fd = open(_LOCK_PATH, "w")
     try:
-        # Blocking exclusive lock — at most one process runs the block below.
         fcntl.flock(lock_fd, fcntl.LOCK_EX)
 
         conn = get_connection()

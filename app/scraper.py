@@ -1,14 +1,3 @@
-"""
-Scraper for https://stat.uz/uz/rasmiy-statistika/raqamli-iqtisodiyot
-
-Strategy (priority order):
-  1. Discover dataset IDs by parsing JSON(API)/CSV href attributes from the live page
-  2. Call stat.uz JSON API for each known dataset
-  3. Fallback to CSV download
-  4. Parse pivoted or row-per-year tables into {year: value}
-
-All 38 datasets are catalogued from the official page screenshots.
-"""
 import csv
 import io
 import re
@@ -30,9 +19,6 @@ HEADERS    = {
     "Accept-Language": "uz,ru;q=0.9,en;q=0.8",
 }
 
-# ─────────────────────────────────────────────────────────────────────────────
-#  FULL DATASET CATALOGUE  (derived from official page screenshots)
-# ─────────────────────────────────────────────────────────────────────────────
 CATEGORIES_META = {
     "korxonalar": {
         "name_uz": "Iqtisodiy faoliyat turlari bo'yicha korxona va tashkilotlar",
@@ -79,7 +65,6 @@ CATEGORIES_META = {
 }
 
 DATASETS = [
-    # ── Iqtisodiy faoliyat turlari bo'yicha korxona va tashkilotlar ──────────
     {"cat": "korxonalar", "unit_uz": "dona", "unit_en": "units", "updated": "01/01/2025",
      "slug": "tugatilgan-kichik-tadbirkorlik",
      "name_uz": "Tugatilgan kichik tadbirkorlik subyektlari soni (iqtisodiy faoliyat turlari kesimida, yillik)",
@@ -91,14 +76,12 @@ DATASETS = [
      "name_en": "IT & telecom companies (by activity type, annual)",
      "name_ru": "ИКТ-компании по видам деятельности (годовые)"},
 
-    # ── Xizmat ko'rsatish ─────────────────────────────────────────────────────
     {"cat": "xizmat", "unit_uz": "%", "unit_en": "%", "updated": "03/07/2025",
      "slug": "dasturiy-xarajat-yaim",
      "name_uz": "Dasturiy ta'minotga qilingan xarajatlarning yalpi ichki mahsulotdagi ulushi (yillik)",
      "name_en": "Software expenditure as % of GDP (annual)",
      "name_ru": "Расходы на ПО в % от ВВП (годовые)"},
 
-    # ── Aloqa ─────────────────────────────────────────────────────────────────
     {"cat": "aloqa", "unit_uz": "mlrd. so'm", "unit_en": "billion UZS", "updated": "26/06/2025",
      "slug": "aloqa-xizmatlar-hajmi",
      "name_uz": "Ko'rsatilgan aloqa va axborotlashtirish xizmatlarining hajmi",
@@ -180,7 +163,6 @@ DATASETS = [
      "name_en": "Local telephone network installed capacity",
      "name_ru": "Установленная ёмкость местных телефонных сетей"},
 
-    # ── Turmush darajasi ──────────────────────────────────────────────────────
     {"cat": "turmush", "unit_uz": "%", "unit_en": "%", "updated": "31/10/2024",
      "slug": "uy-xojalik-tor-yolakli",
      "name_uz": "Qayd qilingan (simli) tor yo'lakli tarmoq bo'yicha internetga kirish imkoniyatiga ega bo'lgan uy xo'jaliklari ulushi",
@@ -212,21 +194,18 @@ DATASETS = [
      "name_en": "Households with mobile broadband via SIM/USB modem (%)",
      "name_ru": "Домохозяйства с мобильным ШПД через SIM/USB модем (%)"},
 
-    # ── Mehnat resurslari ─────────────────────────────────────────────────────
     {"cat": "mehnat", "unit_uz": "ming kishi", "unit_en": "thousands", "updated": "25/06/2025",
      "slug": "akt-xodimlar-soni",
      "name_uz": "AKT sohasida faoliyat yuritayotgan yuridik shaxslarda ishlovchi xodimlar soni",
      "name_en": "Employees at ICT legal entities",
      "name_ru": "Работники ИКТ-компаний"},
 
-    # ── Ish haqi ──────────────────────────────────────────────────────────────
     {"cat": "ish-haqi", "unit_uz": "ming so'm", "unit_en": "thousand UZS", "updated": "12/06/2025",
      "slug": "axborot-aloqa-ish-haqi",
      "name_uz": "Axborot va aloqa sohasidagi ish haqi",
      "name_en": "ICT sector wages",
      "name_ru": "Заработная плата в сфере ИКТ"},
 
-    # ── Axborot iqtisodiyoti va elektron tijorat ──────────────────────────────
     {"cat": "axborot-iqtisodiyoti", "unit_uz": "mlrd. so'm", "unit_en": "billion UZS", "updated": "21/01/2025",
      "slug": "axborot-iqtisodiyot-yqq-jami",
      "name_uz": "Axborot iqtisodiyoti va elektron tijorat sektorida yaratilgan yalpi qo'shilgan qiymat hajmi (yillik)",
@@ -299,11 +278,6 @@ DATASETS = [
      "name_ru": "Доля ВДС электронной торговли в ВВП (годовые)"},
 ]
 
-
-# ─────────────────────────────────────────────────────────────────────────────
-#  Helpers
-# ─────────────────────────────────────────────────────────────────────────────
-
 def _session():
     s = requests.Session()
     s.headers.update(HEADERS)
@@ -329,12 +303,7 @@ def _extract_year(text):
     return int(m.group(1)) if m else None
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-#  Step 1 – discover dataset IDs from live page
-# ─────────────────────────────────────────────────────────────────────────────
-
 def discover_ids(session) -> dict[str, str]:
-    """Return {row_title[:80] → dataset_id} by parsing href attributes."""
     try:
         resp = session.get(TARGET_URL, timeout=20)
         resp.raise_for_status()
@@ -356,10 +325,6 @@ def discover_ids(session) -> dict[str, str]:
     logger.info(f"Discovered {len(id_map)} dataset IDs")
     return id_map
 
-
-# ─────────────────────────────────────────────────────────────────────────────
-#  Step 2 – fetch JSON or CSV for a given ID
-# ─────────────────────────────────────────────────────────────────────────────
 
 def fetch_json(session, did: str) -> list[dict]:
     url = f"{BASE_URL}/uz/ofitsialnaya-statistika/raqamli-iqtisodiyot?task=json&id={did}"
@@ -389,10 +354,6 @@ def fetch_csv(session, did: str) -> list[dict]:
     return []
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-#  Step 3 – parse rows → {year: value}
-# ─────────────────────────────────────────────────────────────────────────────
-
 def parse_timeseries(rows: list[dict]) -> dict[int, float]:
     result: dict[int, float] = {}
     for row in rows:
@@ -405,7 +366,6 @@ def parse_timeseries(rows: list[dict]) -> dict[int, float]:
             if y and v is not None:
                 result[y] = v
             continue
-        # Pivot table – year in column header
         for k, v in row.items():
             y = _extract_year(k)
             if y:
@@ -415,10 +375,6 @@ def parse_timeseries(rows: list[dict]) -> dict[int, float]:
     return result
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-#  Main pipeline
-# ─────────────────────────────────────────────────────────────────────────────
-
 def run_scraper() -> int:
     started = datetime.now().isoformat()
     total   = 0
@@ -427,7 +383,6 @@ def run_scraper() -> int:
     try:
         id_map = discover_ids(session)
 
-        # Register all categories
         cat_ids: dict[str, int] = {}
         for slug, meta in CATEGORIES_META.items():
             cat_ids[slug] = insert_category(
@@ -439,7 +394,6 @@ def run_scraper() -> int:
             )
 
         for ds in DATASETS:
-            # Match dataset to discovered ID via fuzzy title search
             did = None
             needle = ds["name_uz"][:40].lower()
             for title, candidate_id in id_map.items():

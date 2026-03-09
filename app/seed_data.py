@@ -1,12 +1,7 @@
-"""
-Seed data for all 38 real stat.uz datasets (from official page screenshots).
-Used when the live site is unreachable or returns no parseable data.
-Values are based on official Uzbekistan statistical publications.
-"""
+
 from app.database import init_db, insert_category, insert_indicator, upsert_data_point
 
 SEED = [
-    # ── Iqtisodiy faoliyat turlari ────────────────────────────────────────────
     {"cat_slug": "korxonalar",
      "cat_uz": "Iqtisodiy faoliyat turlari bo'yicha korxona va tashkilotlar",
      "cat_en": "Companies by economic activity type",
@@ -31,7 +26,6 @@ SEED = [
      "unit_uz": "dona", "unit_en": "units",
      "data": {2018: 4120, 2019: 4870, 2020: 5340, 2021: 4980, 2022: 5610, 2023: 6230}},
 
-    # ── Xizmat ko'rsatish ─────────────────────────────────────────────────────
     {"cat_slug": "xizmat",
      "cat_uz": "Xizmat ko'rsatish",
      "cat_en": "Services",
@@ -44,7 +38,6 @@ SEED = [
      "unit_uz": "%", "unit_en": "%",
      "data": {2018: 0.31, 2019: 0.38, 2020: 0.44, 2021: 0.52, 2022: 0.61, 2023: 0.72}},
 
-    # ── Aloqa ─────────────────────────────────────────────────────────────────
     {"cat_slug": "aloqa",
      "cat_uz": "Aloqa", "cat_en": "Telecommunications", "cat_ru": "Связь", "cat_icon": "📡",
      "slug": "aloqa-xizmatlar-hajmi",
@@ -189,7 +182,6 @@ SEED = [
      "unit_uz": "ming dona", "unit_en": "thousands",
      "data": {2017: 23400, 2018: 24800, 2019: 26100, 2020: 27300, 2021: 29200, 2022: 31400, 2023: 33800}},
 
-    # ── Turmush darajasi ──────────────────────────────────────────────────────
     {"cat_slug": "turmush",
      "cat_uz": "Turmush darajasi bo'yicha ko'rsatkichlar",
      "cat_en": "Living standards indicators",
@@ -262,7 +254,6 @@ SEED = [
      "unit_uz": "%", "unit_en": "%",
      "data": {2018: 3.2, 2019: 2.4, 2020: 1.8, 2021: 1.2, 2022: 0.8, 2023: 0.5}},
 
-    # ── Mehnat resurslari ─────────────────────────────────────────────────────
     {"cat_slug": "mehnat",
      "cat_uz": "Mehnat resurslari", "cat_en": "Labour resources",
      "cat_ru": "Трудовые ресурсы", "cat_icon": "👷",
@@ -273,7 +264,6 @@ SEED = [
      "unit_uz": "ming kishi", "unit_en": "thousands",
      "data": {2017: 48.2, 2018: 55.7, 2019: 64.3, 2020: 70.1, 2021: 82.4, 2022: 97.6, 2023: 115.3}},
 
-    # ── Ish haqi ──────────────────────────────────────────────────────────────
     {"cat_slug": "ish-haqi",
      "cat_uz": "Ish haqi", "cat_en": "Wages", "cat_ru": "Заработная плата", "cat_icon": "💰",
      "slug": "axborot-aloqa-ish-haqi",
@@ -283,7 +273,6 @@ SEED = [
      "unit_uz": "ming so'm", "unit_en": "thousand UZS",
      "data": {2017: 1240, 2018: 1680, 2019: 2140, 2020: 2780, 2021: 3640, 2022: 4820, 2023: 6380}},
 
-    # ── Axborot iqtisodiyoti va elektron tijorat ──────────────────────────────
     {"cat_slug": "axborot-iqtisodiyoti",
      "cat_uz": "Axborot iqtisodiyoti va elektron tijorat",
      "cat_en": "Information economy & e-commerce",

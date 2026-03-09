@@ -1,7 +1,4 @@
-"""
-FastAPI backend – Digital Economy Statistics Dashboard
-Endpoints serve data to the frontend and expose REST API for external consumers.
-"""
+
 import os
 import math
 import logging
@@ -30,16 +27,11 @@ app.add_middleware(
 )
 
 
-# ─── Startup ──────────────────────────────────────────────────────────────────
 
 @app.on_event("startup")
 async def startup():
-    # ── 1. Schema (safe with concurrent workers via file lock) ────────────────
     init_db()
 
-    # ── 2. Seed only once across all workers ──────────────────────────────────
-    # We use a sentinel file instead of a DB query so that the "empty DB"
-    # check + seed happen atomically from a single process.
     import fcntl, tempfile, pathlib
 
     seed_flag = pathlib.Path(DB_PATH + ".seeded")
@@ -47,7 +39,7 @@ async def startup():
 
     lock_fd = open(seed_lock, "w")
     try:
-        fcntl.flock(lock_fd, fcntl.LOCK_EX)          # only one worker enters
+        fcntl.flock(lock_fd, fcntl.LOCK_EX)
 
         if not seed_flag.exists():
             conn = get_connection()
@@ -59,24 +51,20 @@ async def startup():
                 from app.seed_data import seed_all
                 seed_all()
 
-            seed_flag.touch()                          # mark done for all workers
+            seed_flag.touch()
     finally:
         fcntl.flock(lock_fd, fcntl.LOCK_UN)
         lock_fd.close()
 
-    # ── 3. Scheduler – only in the first worker (uvicorn sets WEB_CONCURRENCY
-    #       or UVICORN_WORKER_ID; fall back to a pid-file guard) ──────────────
     sched_flag = pathlib.Path(DB_PATH + ".schedpid")
     try:
-        # If the flag file holds our own PID it means we already scheduled;
-        # if it holds another PID that is still alive, skip.
         existing_pid = int(sched_flag.read_text()) if sched_flag.exists() else None
         if existing_pid and existing_pid != os.getpid():
             try:
-                os.kill(existing_pid, 0)   # check process is alive
-                raise OSError              # alive → skip
+                os.kill(existing_pid, 0)
+                raise OSError
             except OSError:
-                pass                       # dead → we take over
+                pass
 
         sched_flag.write_text(str(os.getpid()))
         from app.scheduler import start_scheduler
@@ -85,7 +73,6 @@ async def startup():
         logger.warning(f"Scheduler not started: {e}")
 
 
-# ─── Static files (frontend) ──────────────────────────────────────────────────
 
 FRONTEND_DIR = os.path.join(os.path.dirname(__file__), "..", "frontend")
 if os.path.isdir(FRONTEND_DIR):
@@ -100,7 +87,6 @@ async def serve_frontend():
     return JSONResponse({"message": "Digital Economy Dashboard API", "docs": "/docs"})
 
 
-# ─── API Endpoints ─────────────────────────────────────────────────────────────
 
 @app.get("/api/categories")
 async def list_categories(lang: str = Query("uz", regex="^(uz|en|ru)$")):
@@ -126,7 +112,6 @@ async def list_indicators(
     category: Optional[str] = None,
     lang: str = Query("uz", regex="^(uz|en|ru)$"),
 ):
-    """Return indicators, optionally filtered by category slug."""
     conn = get_connection()
     if category:
         rows = conn.execute(
@@ -166,7 +151,6 @@ async def get_indicator_data(
     year_to: Optional[int] = None,
     lang: str = Query("uz", regex="^(uz|en|ru)$"),
 ):
-    """Return time-series data for a specific indicator."""
     conn = get_connection()
     ind = conn.execute(
         "SELECT * FROM indicators WHERE slug=?", (indicator_slug,)
@@ -245,7 +229,6 @@ async def compare_indicators(
     slugs: str = Query(..., description="Comma-separated indicator slugs"),
     lang: str = Query("uz", regex="^(uz|en|ru)$"),
 ):
-    """Return aligned time series for multiple indicators (for comparison charts)."""
     slug_list = [s.strip() for s in slugs.split(",") if s.strip()]
     if not slug_list:
         raise HTTPException(400, "No slugs provided")
@@ -271,7 +254,6 @@ async def compare_indicators(
 
 @app.get("/api/growth")
 async def growth_analysis(lang: str = Query("uz", regex="^(uz|en|ru)$")):
-    """CAGR and growth rates for all indicators."""
     conn = get_connection()
     rows = conn.execute(
         """SELECT i.slug, i.name_uz, i.name_en, i.name_ru, i.unit_uz,
@@ -322,7 +304,6 @@ async def scrape_status():
 
 @app.post("/api/scrape/trigger")
 async def trigger_scrape():
-    """Manually trigger a live scrape from stat.uz."""
     from app.scraper import run_scraper
     try:
         count = run_scraper()
@@ -333,14 +314,12 @@ async def trigger_scrape():
 
 @app.get("/api/years")
 async def available_years():
-    """Return the min/max years present in the database."""
     conn = get_connection()
     row = conn.execute("SELECT MIN(year) as mn, MAX(year) as mx FROM data_points").fetchone()
     conn.close()
     return {"min_year": row["mn"], "max_year": row["mx"]}
 
 
-# ─── Helpers ──────────────────────────────────────────────────────────────────
 
 def _compute_stats(values: list[float]) -> dict:
     if not values:

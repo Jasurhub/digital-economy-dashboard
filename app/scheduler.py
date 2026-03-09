@@ -1,7 +1,4 @@
-"""
-Background scheduler – runs the scraper periodically.
-Default: every 6 hours.
-"""
+
 import logging
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.interval import IntervalTrigger
