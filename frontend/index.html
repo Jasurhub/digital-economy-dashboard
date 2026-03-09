@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Raqamli Iqtisodiyot — O'zbekiston Statistikasi</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Unbounded:wght@300;600;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet"/>
+<style>
+/* ═══════════════════════════════════════════════
+   DESIGN SYSTEM  ─  UZ Digital Economy Dashboard
+   Theme: "Soviet Constructivism meets Cyber"
+   Palette: Deep navy + Electric teal + Amber pulse
+   ═══════════════════════════════════════════════ */
+:root {
+  --bg-base:   #060d1a;
+  --bg-panel:  #0b1629;
+  --bg-card:   #0f1e38;
+  --bg-hover:  #152545;
+  --teal:      #00d4aa;
+  --teal-dim:  #007d66;
+  --amber:     #f5a623;
+  --amber-dim: #7a5012;
+  --red:       #ff4a6e;
+  --blue:      #3a9bdc;
+  --text-1:    #e8eef8;
+  --text-2:    #8ba4c8;
+  --text-3:    #4a6490;
+  --border:    #1a2d50;
+  --border-hi: #243d68;
+  --font-head: 'Unbounded', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+  --radius:    4px;
+  --radius-lg: 8px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg-base);
+  color: var(--text-1);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── Grid noise texture ── */
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(0,212,170,.03) 40px),
+    repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(0,212,170,.03) 40px);
+}
+
+/* ─────────────── HEADER ──────────────────────── */
+#header {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 24px;
+  height: 60px;
+  background: rgba(6,13,26,.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+
+.logo {
+  display: flex; align-items: center; gap: 12px;
+}
+.logo-badge {
+  width: 32px; height: 32px;
+  background: var(--teal);
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 900; color: var(--bg-base);
+}
+.logo-text { font-family: var(--font-head); font-size: 11px; font-weight: 600; letter-spacing: .12em; }
+.logo-sub  { font-family: var(--font-mono); font-size: 9px; color: var(--text-3); letter-spacing: .08em; }
+
+.header-right { display: flex; align-items: center; gap: 16px; }
+
+.lang-switcher { display: flex; gap: 4px; }
+.lang-btn {
+  padding: 3px 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-3);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: .1em;
+  cursor: pointer;
+  border-radius: var(--radius);
+  transition: all .2s;
+}
+.lang-btn:hover, .lang-btn.active {
+  border-color: var(--teal);
+  color: var(--teal);
+  background: rgba(0,212,170,.08);
+}
+
+.last-update {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-3);
+}
+.update-dot {
+  display: inline-block; width: 6px; height: 6px;
+  border-radius: 50%; background: var(--teal);
+  margin-right: 6px;
+  animation: pulse-dot 2s infinite;
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: .3; }
+}
+
+/* ─────────────── SIDEBAR ─────────────────────── */
+#sidebar {
+  position: fixed; top: 60px; left: 0; bottom: 0;
+  width: 220px; z-index: 50;
+  background: var(--bg-panel);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  padding: 16px 0;
+}
+
+.nav-section-title {
+  padding: 8px 16px 4px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: .15em;
+  color: var(--text-3);
+  text-transform: uppercase;
+}
+
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 16px;
+  cursor: pointer;
+  transition: all .18s;
+  border-left: 3px solid transparent;
+  font-size: 12px;
+  font-weight: 500;
+}
+.nav-item:hover {
+  background: var(--bg-hover);
+  color: var(--teal);
+  border-left-color: var(--teal-dim);
+}
+.nav-item.active {
+  background: rgba(0,212,170,.06);
+  color: var(--teal);
+  border-left-color: var(--teal);
+}
+.nav-icon { font-size: 15px; }
+
+/* ─────────────── MAIN ────────────────────────── */
+#main {
+  margin-left: 220px;
+  padding: 24px;
+  min-height: calc(100vh - 60px);
+  position: relative; z-index: 1;
+}
+
+/* ─────────────── FILTERS BAR ─────────────────── */
+#filters {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.filter-label { font-family: var(--font-mono); font-size: 10px; color: var(--text-3); letter-spacing: .1em; }
+
+.filter-select, .filter-input {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text-1);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 6px 10px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  outline: none;
+  transition: border-color .2s;
+}
+.filter-select:hover, .filter-select:focus,
+.filter-input:hover,  .filter-input:focus {
+  border-color: var(--teal);
+}
+.filter-select option { background: var(--bg-card); }
+
+.btn-scrape {
+  margin-left: auto;
+  padding: 7px 16px;
+  background: rgba(0,212,170,.12);
+  border: 1px solid var(--teal-dim);
+  color: var(--teal);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: .08em;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all .2s;
+}
+.btn-scrape:hover { background: rgba(0,212,170,.22); border-color: var(--teal); }
+.btn-scrape.loading { opacity: .6; pointer-events: none; }
+
+/* ─────────────── KPI CARDS ───────────────────── */
+#kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.kpi-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  cursor: pointer;
+  transition: all .25s;
+  position: relative;
+  overflow: hidden;
+}
+.kpi-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: var(--teal);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform .3s;
+}
+.kpi-card:hover { border-color: var(--border-hi); background: var(--bg-hover); transform: translateY(-2px); }
+.kpi-card:hover::before { transform: scaleX(1); }
+.kpi-card.selected { border-color: var(--teal); background: rgba(0,212,170,.06); }
+.kpi-card.selected::before { transform: scaleX(1); background: var(--teal); }
+
+.kpi-icon   { font-size: 18px; margin-bottom: 8px; }
+.kpi-name   { font-size: 11px; color: var(--text-2); line-height: 1.4; margin-bottom: 8px; }
+.kpi-value  { font-family: var(--font-head); font-size: 20px; font-weight: 900; color: var(--teal); }
+.kpi-unit   { font-family: var(--font-mono); font-size: 9px; color: var(--text-3); margin-left: 4px; }
+.kpi-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
+.kpi-year   { font-family: var(--font-mono); font-size: 9px; color: var(--text-3); }
+.kpi-growth {
+  font-family: var(--font-mono); font-size: 10px; font-weight: 600;
+  padding: 2px 6px; border-radius: 20px;
+}
+.kpi-growth.up   { color: var(--teal);  background: rgba(0,212,170,.12); }
+.kpi-growth.down { color: var(--red);   background: rgba(255,74,110,.12); }
+
+/* ─────────────── CHART AREA ──────────────────── */
+#charts-area {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.chart-panel {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  position: relative;
+}
+.chart-panel-full { grid-column: 1 / -1; }
+
+.panel-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  margin-bottom: 16px;
+}
+.panel-title { font-family: var(--font-head); font-size: 12px; font-weight: 600; letter-spacing: .04em; }
+.panel-subtitle { font-family: var(--font-mono); font-size: 10px; color: var(--text-3); margin-top: 3px; }
+
+.chart-type-btns { display: flex; gap: 4px; }
+.chart-type-btn {
+  padding: 4px 10px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-3);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  cursor: pointer;
+  border-radius: var(--radius);
+  transition: all .2s;
+}
+.chart-type-btn:hover, .chart-type-btn.active {
+  border-color: var(--teal); color: var(--teal); background: rgba(0,212,170,.08);
+}
+
+.chart-canvas-wrap { position: relative; height: 280px; }
+
+/* ─────────────── GROWTH TABLE ────────────────── */
+#growth-section { margin-bottom: 16px; }
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+.data-table th {
+  padding: 10px 12px;
+  background: var(--bg-card);
+  color: var(--text-3);
+  text-align: left;
+  font-size: 9px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+}
+.data-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-1);
+}
+.data-table tr:hover td { background: var(--bg-hover); }
+.data-table .positive { color: var(--teal); }
+.data-table .negative { color: var(--red); }
+
+.bar-inline {
+  display: inline-block; height: 4px; border-radius: 2px;
+  background: var(--teal); vertical-align: middle; margin-left: 8px;
+  opacity: .6;
+}
+
+/* ─────────────── SCRAPE STATUS ───────────────── */
+#status-bar {
+  display: flex; align-items: center; gap: 16px;
+  padding: 10px 16px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-3);
+  margin-bottom: 20px;
+}
+.status-ok   { color: var(--teal); }
+.status-err  { color: var(--red); }
+
+/* ─────────────── LOADING ─────────────────────── */
+.spinner {
+  display: inline-block; width: 14px; height: 14px;
+  border: 2px solid var(--border);
+  border-top-color: var(--teal);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ─────────────── TOAST ───────────────────────── */
+#toast {
+  position: fixed; bottom: 24px; right: 24px; z-index: 999;
+  padding: 12px 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--teal);
+  color: var(--teal);
+  font-family: var(--font-mono); font-size: 11px;
+  border-radius: var(--radius-lg);
+  transform: translateY(80px); opacity: 0;
+  transition: all .3s;
+  pointer-events: none;
+}
+#toast.show { transform: translateY(0); opacity: 1; }
+
+/* ─────────────── SECTION LABEL ──────────────── */
+.section-label {
+  font-family: var(--font-mono); font-size: 9px; letter-spacing: .2em;
+  color: var(--text-3); text-transform: uppercase;
+  margin-bottom: 12px;
+  display: flex; align-items: center; gap: 8px;
+}
+.section-label::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+
+/* ─────────────── RESPONSIVE ─────────────────── */
+@media (max-width: 900px) {
+  #sidebar { display: none; }
+  #main    { margin-left: 0; padding: 16px; }
+  #charts-area { grid-template-columns: 1fr; }
+}
+
+/* ─────────────── SCROLL BAR ─────────────────── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--bg-base); }
+::-webkit-scrollbar-thumb { background: var(--border-hi); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<!-- ═══ HEADER ═══ -->
+<header id="header">
+  <div class="logo">
+    <div class="logo-badge">RI</div>
+    <div>
+      <div class="logo-text" id="logo-title">RAQAMLI IQTISODIYOT</div>
+      <div class="logo-sub">O'ZBEKISTON STATISTIKA AGENTLIGI</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="last-update">
+      <span class="update-dot"></span>
+      <span id="last-update-text">Yuklanmoqda…</span>
+    </div>
+    <div class="lang-switcher">
+      <button class="lang-btn active" data-lang="uz">UZ</button>
+      <button class="lang-btn"        data-lang="en">EN</button>
+      <button class="lang-btn"        data-lang="ru">RU</button>
+    </div>
+  </div>
+</header>
+
+<!-- ═══ SIDEBAR ═══ -->
+<nav id="sidebar">
+  <div class="nav-section-title" id="nav-all-label">BARCHA KO'RSATKICHLAR</div>
+  <div id="nav-items"></div>
+</nav>
+
+<!-- ═══ MAIN ═══ -->
+<main id="main">
+
+  <!-- Status bar -->
+  <div id="status-bar">
+    <span id="scrape-status">⏳ Yuklanmoqda…</span>
+    <span id="db-count"></span>
+    <a href="/docs" target="_blank" style="color:var(--teal);text-decoration:none;margin-left:auto">API Docs →</a>
+  </div>
+
+  <!-- Filters -->
+  <div id="filters">
+    <span class="filter-label" id="fl-cat">KATEGORIYA:</span>
+    <select class="filter-select" id="cat-filter">
+      <option value="">Barchasi</option>
+    </select>
+    <span class="filter-label" id="fl-year">YIL:</span>
+    <input type="number" class="filter-input" id="year-from" placeholder="2017" style="width:76px"/>
+    <span style="color:var(--text-3)">—</span>
+    <input type="number" class="filter-input" id="year-to"   placeholder="2023" style="width:76px"/>
+    <button class="btn-scrape" id="scrape-btn" onclick="triggerScrape()">⟳ YANGILASH</button>
+  </div>
+
+  <!-- KPI cards -->
+  <div class="section-label" id="sl-kpi">KPI BLOKLARI</div>
+  <div id="kpi-grid"></div>
+
+  <!-- Charts -->
+  <div class="section-label" id="sl-charts">GRAFIK TAHLIL</div>
+  <div id="charts-area">
+    <!-- Line chart -->
+    <div class="chart-panel">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title" id="line-chart-title">Ko'rsatkich dinamikasi</div>
+          <div class="panel-subtitle" id="line-chart-sub">Ko'rsatkichni tanlang</div>
+        </div>
+        <div class="chart-type-btns">
+          <button class="chart-type-btn active" onclick="setLineType('line')"  id="btn-line">CHIZIQ</button>
+          <button class="chart-type-btn"        onclick="setLineType('bar')"   id="btn-bar">USTUN</button>
+          <button class="chart-type-btn"        onclick="setLineType('area')"  id="btn-area">MAYDON</button>
+        </div>
+      </div>
+      <div class="chart-canvas-wrap">
+        <canvas id="lineChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Bar chart – Category totals -->
+    <div class="chart-panel">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title" id="bar-chart-title">O'sish sur'ati (CAGR %)</div>
+          <div class="panel-subtitle" id="bar-chart-sub">Barcha ko'rsatkichlar bo'yicha</div>
+        </div>
+      </div>
+      <div class="chart-canvas-wrap">
+        <canvas id="barChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Multi-line comparison chart -->
+    <div class="chart-panel chart-panel-full">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title" id="compare-title">Solishtirma tahlil</div>
+          <div class="panel-subtitle" id="compare-sub">Asosiy ko'rsatkichlar dinamikasi</div>
+        </div>
+      </div>
+      <div class="chart-canvas-wrap" style="height:320px">
+        <canvas id="compareChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Growth table -->
+  <div class="section-label" id="sl-growth">O'SISH TAHLILI</div>
+  <div class="chart-panel" id="growth-section">
+    <div id="growth-table-wrap"></div>
+  </div>
+
+</main>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════
+//  DASHBOARD CONTROLLER
+// ═══════════════════════════════════════════
+
+const API = window.location.origin;
+
+// State
+let lang         = 'uz';
+let allKpis      = [];
+let allGrowth    = [];
+let categories   = [];
+let selectedSlug = null;
+let lineType     = 'line';
+let yearFrom     = null;
+let yearTo       = null;
+
+// Chart instances
+let lineChartInst    = null;
+let barChartInst     = null;
+let compareChartInst = null;
+
+// ── i18n labels ─────────────────────────────
+const i18n = {
+  uz: {
+    kpiSection:   'KPI BLOKLARI',
+    chartsSection:'GRAFIK TAHLIL',
+    growthSection:'O\'SISH TAHLILI',
+    navAll:       'BARCHA KO\'RSATKICHLAR',
+    catFilter:    'KATEGORIYA:',
+    yearFilter:   'YIL:',
+    refreshBtn:   '⟳ YANGILASH',
+    lineBtn:      'CHIZIQ',
+    barBtn:       'USTUN',
+    areaBtn:      'MAYDON',
+    dynamicTitle: 'Ko\'rsatkich dinamikasi',
+    dynamicSub:   'Ko\'rsatkichni tanlang',
+    cagrTitle:    'O\'sish sur\'ati (CAGR %)',
+    cagrSub:      'Barcha ko\'rsatkichlar bo\'yicha',
+    compareTitle: 'Solishtirma tahlil',
+    compareSub:   'Asosiy ko\'rsatkichlar dinamikasi',
+    growthTh:     ['KO\'RSATKICH', 'BIRINCHI YIL', 'SO\'NGGI YIL', 'CAGR %', 'JAMI O\'SISH'],
+    logoTitle:    'RAQAMLI IQTISODIYOT',
+    allCats:      'Barchasi',
+    apiDocs:      'API Docs →',
+  },
+  en: {
+    kpiSection:   'KPI BLOCKS',
+    chartsSection:'CHART ANALYSIS',
+    growthSection:'GROWTH ANALYSIS',
+    navAll:       'ALL INDICATORS',
+    catFilter:    'CATEGORY:',
+    yearFilter:   'YEAR:',
+    refreshBtn:   '⟳ REFRESH',
+    lineBtn:      'LINE',
+    barBtn:       'BAR',
+    areaBtn:      'AREA',
+    dynamicTitle: 'Indicator Dynamics',
+    dynamicSub:   'Select an indicator',
+    cagrTitle:    'Growth Rate (CAGR %)',
+    cagrSub:      'All indicators',
+    compareTitle: 'Comparative Analysis',
+    compareSub:   'Key indicator dynamics',
+    growthTh:     ['INDICATOR', 'FIRST YEAR', 'LAST YEAR', 'CAGR %', 'TOTAL GROWTH'],
+    logoTitle:    'DIGITAL ECONOMY',
+    allCats:      'All',
+    apiDocs:      'API Docs →',
+  },
+  ru: {
+    kpiSection:   'KPI БЛОКИ',
+    chartsSection:'ГРАФИЧЕСКИЙ АНАЛИЗ',
+    growthSection:'АНАЛИЗ РОСТА',
+    navAll:       'ВСЕ ПОКАЗАТЕЛИ',
+    catFilter:    'КАТЕГОРИЯ:',
+    yearFilter:   'ГОД:',
+    refreshBtn:   '⟳ ОБНОВИТЬ',
+    lineBtn:      'ЛИНИЯ',
+    barBtn:       'СТОЛБЕЦ',
+    areaBtn:      'ОБЛАСТЬ',
+    dynamicTitle: 'Динамика показателя',
+    dynamicSub:   'Выберите показатель',
+    cagrTitle:    'Темп роста (CAGR %)',
+    cagrSub:      'По всем показателям',
+    compareTitle: 'Сравнительный анализ',
+    compareSub:   'Динамика ключевых показателей',
+    growthTh:     ['ПОКАЗАТЕЛЬ', 'ПЕРВЫЙ ГОД', 'ПОСЛЕДНИЙ ГОД', 'CAGR %', 'ОБЩИЙ РОСТ'],
+    logoTitle:    'ЦИФРОВАЯ ЭКОНОМИКА',
+    allCats:      'Все',
+    apiDocs:      'API Docs →',
+  }
+};
+
+function t(key) { return (i18n[lang] || i18n.uz)[key] || key; }
+
+// ── Chart.js defaults ─────────────────────────
+Chart.defaults.color           = '#8ba4c8';
+Chart.defaults.font.family     = "'IBM Plex Mono', monospace";
+Chart.defaults.font.size       = 10;
+Chart.defaults.borderColor     = '#1a2d50';
+Chart.defaults.plugins.legend.display = false;
+
+const COLORS = ['#00d4aa','#f5a623','#3a9bdc','#ff4a6e','#a78bfa','#34d399'];
+
+// ── API helpers ───────────────────────────────
+async function api(path) {
+  const r = await fetch(`${API}${path}`);
+  if (!r.ok) throw new Error(`${r.status}`);
+  return r.json();
+}
+
+async function apiPost(path) {
+  const r = await fetch(`${API}${path}`, { method: 'POST' });
+  if (!r.ok) throw new Error(`${r.status}`);
+  return r.json();
+}
+
+// ── Init ──────────────────────────────────────
+async function init() {
+  await Promise.all([
+    loadCategories(),
+    loadKpis(),
+    loadScrapeStatus(),
+    loadGrowth(),
+    loadCompare(),
+  ]);
+  applyFilters();
+}
+
+// ── Categories ────────────────────────────────
+async function loadCategories() {
+  categories = await api(`/api/categories?lang=${lang}`);
+  renderNav();
+  renderCatFilter();
+}
+
+function renderNav() {
+  const el = document.getElementById('nav-items');
+  document.getElementById('nav-all-label').textContent = t('navAll');
+  el.innerHTML = categories.map(c => `
+    <div class="nav-item ${selectedSlug===null&&c.id===categories[0]?.id?'':''}"
+         onclick="filterByCategory('${c.slug}')">
+      <span class="nav-icon">${c.icon}</span>
+      <span>${c.name}</span>
+    </div>`).join('');
+}
+
+function renderCatFilter() {
+  const sel = document.getElementById('cat-filter');
+  const cur = sel.value;
+  sel.innerHTML = `<option value="">${t('allCats')}</option>` +
+    categories.map(c => `<option value="${c.slug}" ${cur===c.slug?'selected':''}>${c.icon} ${c.name}</option>`).join('');
+}
+
+// ── KPI ──────────────────────────────────────
+async function loadKpis() {
+  allKpis = await api(`/api/kpi?lang=${lang}`);
+  renderKpis(allKpis);
+}
+
+function renderKpis(kpis) {
+  const grid = document.getElementById('kpi-grid');
+  if (!kpis.length) { grid.innerHTML = '<p style="color:var(--text-3)">Ma\'lumot topilmadi</p>'; return; }
+  grid.innerHTML = kpis.map(k => {
+    const g = k.yoy_growth_pct;
+    const growthHtml = g !== null
+      ? `<span class="kpi-growth ${g>=0?'up':'down'}">${g>=0?'▲':'▼'} ${Math.abs(g)}%</span>`
+      : '';
+    return `
+    <div class="kpi-card ${selectedSlug===k.slug?'selected':''}" onclick="selectIndicator('${k.slug}', '${k.name}', '${k.unit}')">
+      <div class="kpi-icon">${k.icon}</div>
+      <div class="kpi-name">${k.name}</div>
+      <div>
+        <span class="kpi-value">${fmtVal(k.latest_value)}</span>
+        <span class="kpi-unit">${k.unit}</span>
+      </div>
+      <div class="kpi-footer">
+        <span class="kpi-year">${k.latest_year}</span>
+        ${growthHtml}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Select indicator ──────────────────────────
+function selectIndicator(slug, name, unit) {
+  selectedSlug = slug;
+  document.querySelectorAll('.kpi-card').forEach(c => c.classList.remove('selected'));
+  document.querySelector(`.kpi-card[onclick*="${slug}"]`)?.classList.add('selected');
+  loadLineChart(slug, name, unit);
+}
+
+// ── Line Chart ────────────────────────────────
+async function loadLineChart(slug, name, unit) {
+  const params = new URLSearchParams({ lang });
+  if (yearFrom) params.set('year_from', yearFrom);
+  if (yearTo)   params.set('year_to',   yearTo);
+  const data = await api(`/api/data/${slug}?${params}`);
+  renderLineChart(data, name, unit);
+  document.getElementById('line-chart-title').textContent = name;
+  document.getElementById('line-chart-sub').textContent   = `${data.series[0]?.year||''} – ${data.series.at(-1)?.year||''} • ${unit}`;
+}
+
+function renderLineChart(data, name, unit) {
+  const labels = data.series.map(d => d.year);
+  const values = data.series.map(d => d.value);
+
+  const isArea = lineType === 'area';
+  const chartType = isArea ? 'line' : lineType;
+
+  const ds = {
+    label: name,
+    data: values,
+    borderColor: '#00d4aa',
+    backgroundColor: isArea ? 'rgba(0,212,170,.15)' : (chartType==='bar' ? 'rgba(0,212,170,.7)' : 'transparent'),
+    borderWidth: 2,
+    pointBackgroundColor: '#00d4aa',
+    pointRadius: 4,
+    fill: isArea,
+    tension: 0.4,
+  };
+
+  if (lineChartInst) lineChartInst.destroy();
+  lineChartInst = new Chart(document.getElementById('lineChart'), {
+    type: chartType === 'area' ? 'line' : chartType,
+    data: { labels, datasets: [ds] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        tooltip: {
+          backgroundColor: '#0b1629',
+          borderColor: '#1a2d50',
+          borderWidth: 1,
+          titleColor: '#8ba4c8',
+          bodyColor: '#00d4aa',
+          callbacks: { label: ctx => ` ${fmtVal(ctx.raw)} ${unit}` }
+        }
+      },
+      scales: {
+        x: { grid: { color: '#1a2d50' }, ticks: { color: '#4a6490' } },
+        y: { grid: { color: '#1a2d50' }, ticks: { color: '#4a6490', callback: v => fmtVal(v) } }
+      }
+    }
+  });
+}
+
+function setLineType(type) {
+  lineType = type;
+  ['line','bar','area'].forEach(t => {
+    document.getElementById(`btn-${t}`).classList.toggle('active', t===type);
+  });
+  if (selectedSlug) {
+    const kpi = allKpis.find(k => k.slug === selectedSlug);
+    if (kpi) loadLineChart(selectedSlug, kpi.name, kpi.unit);
+  }
+}
+
+// ── CAGR Bar Chart ────────────────────────────
+async function loadGrowth() {
+  allGrowth = await api(`/api/growth?lang=${lang}`);
+  renderBarChart(allGrowth);
+  renderGrowthTable(allGrowth);
+}
+
+function renderBarChart(growth) {
+  const filtered = growth.filter(g => g.cagr_pct !== null).slice(0, 12);
+  const labels   = filtered.map(g => truncate(g.name, 20));
+  const values   = filtered.map(g => g.cagr_pct);
+  const colors   = values.map(v => v >= 0 ? 'rgba(0,212,170,.75)' : 'rgba(255,74,110,.75)');
+
+  if (barChartInst) barChartInst.destroy();
+  barChartInst = new Chart(document.getElementById('barChart'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{ data: values, backgroundColor: colors, borderRadius: 2 }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        tooltip: {
+          backgroundColor: '#0b1629', borderColor: '#1a2d50', borderWidth: 1,
+          callbacks: { label: ctx => ` CAGR: ${ctx.raw}%` }
+        }
+      },
+      scales: {
+        x: { grid: { color: '#1a2d50' }, ticks: { color: '#4a6490', callback: v => v+'%' } },
+        y: { grid: { display: false }, ticks: { color: '#8ba4c8', font: { size: 9 } } }
+      }
+    }
+  });
+}
+
+function renderGrowthTable(growth) {
+  const ths = t('growthTh');
+  const rows = growth.map(g => {
+    const cagrClass   = g.cagr_pct  >= 0 ? 'positive' : 'negative';
+    const totalClass  = g.total_growth_pct >= 0 ? 'positive' : 'negative';
+    const barW = Math.min(80, Math.abs(g.cagr_pct || 0) * 4);
+    return `<tr>
+      <td>${g.name}</td>
+      <td>${g.first_year} <small style="color:var(--text-3)">(${fmtVal(g.first_value)})</small></td>
+      <td>${g.last_year}  <small style="color:var(--text-3)">(${fmtVal(g.last_value)})</small></td>
+      <td class="${cagrClass}">${g.cagr_pct !== null ? g.cagr_pct+'%' : '—'}
+        <span class="bar-inline" style="width:${barW}px;background:${g.cagr_pct>=0?'var(--teal)':'var(--red)'}"></span>
+      </td>
+      <td class="${totalClass}">${g.total_growth_pct !== null ? g.total_growth_pct+'%' : '—'}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('growth-table-wrap').innerHTML = `
+    <table class="data-table">
+      <thead><tr>${ths.map(h=>`<th>${h}</th>`).join('')}</tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+// ── Comparison Chart ──────────────────────────
+async function loadCompare() {
+  // Compare top 5 indicators across categories
+  const slugs = [
+    'internet-users-pct',
+    '4g-coverage-pct',
+    'ict-gdp-pct',
+    'digital-literacy-pct',
+    'fiber-coverage-pct',
+  ].join(',');
+  const data = await api(`/api/compare?slugs=${slugs}&lang=${lang}`);
+  renderCompareChart(data);
+}
+
+function renderCompareChart(data) {
+  const allYears = [...new Set(
+    Object.values(data).flatMap(s => s.data.map(d => d.year))
+  )].sort();
+
+  const datasets = Object.entries(data).map(([slug, s], i) => ({
+    label: s.name,
+    data: allYears.map(y => s.data.find(d => d.year === y)?.value ?? null),
+    borderColor: COLORS[i % COLORS.length],
+    backgroundColor: 'transparent',
+    borderWidth: 2,
+    pointRadius: 3,
+    tension: 0.4,
+    spanGaps: true,
+  }));
+
+  if (compareChartInst) compareChartInst.destroy();
+  compareChartInst = new Chart(document.getElementById('compareChart'), {
+    type: 'line',
+    data: { labels: allYears, datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: true,
+          position: 'top',
+          labels: { color: '#8ba4c8', boxWidth: 12, font: { size: 10 } }
+        },
+        tooltip: {
+          backgroundColor: '#0b1629', borderColor: '#1a2d50', borderWidth: 1,
+          titleColor: '#8ba4c8', bodyColor: '#e8eef8',
+        }
+      },
+      scales: {
+        x: { grid: { color: '#1a2d50' }, ticks: { color: '#4a6490' } },
+        y: { grid: { color: '#1a2d50' }, ticks: { color: '#4a6490', callback: v => fmtVal(v) } }
+      }
+    }
+  });
+}
+
+// ── Scrape status ─────────────────────────────
+async function loadScrapeStatus() {
+  try {
+    const s = await api('/api/scrape/status');
+    const statusEl = document.getElementById('scrape-status');
+    if (s.status === 'never_run') {
+      statusEl.innerHTML = '<span style="color:var(--amber)">● Hali yangilanmagan</span>';
+    } else if (s.status === 'success') {
+      statusEl.innerHTML = `<span class="status-ok">● Muvaffaqiyatli</span> — ${s.finished_at?.slice(0,16)} | ${s.records} yozuv`;
+    } else {
+      statusEl.innerHTML = `<span class="status-err">● Xato: ${s.error?.slice(0,60)}</span>`;
+    }
+    document.getElementById('last-update-text').textContent =
+      s.finished_at ? s.finished_at.slice(0,16) : 'Yangilanmagan';
+  } catch(e) {
+    document.getElementById('scrape-status').textContent = '● API ulanmagan (standalone rejim)';
+  }
+
+  // Count records
+  try {
+    const kpis = await api(`/api/kpi?lang=${lang}`);
+    document.getElementById('db-count').textContent = `${kpis.length} ko'rsatkich`;
+  } catch(e) {}
+}
+
+// ── Trigger scrape ────────────────────────────
+async function triggerScrape() {
+  const btn = document.getElementById('scrape-btn');
+  btn.textContent = '⟳ …'; btn.classList.add('loading');
+  try {
+    const r = await apiPost('/api/scrape/trigger');
+    toast(`✓ ${r.records_updated} yozuv yangilandi`);
+    await loadKpis();
+    await loadGrowth();
+    await loadScrapeStatus();
+  } catch(e) {
+    toast('⚠ Backend bilan ulanib bo\'lmadi', true);
+  }
+  btn.textContent = t('refreshBtn'); btn.classList.remove('loading');
+}
+
+// ── Filters ───────────────────────────────────
+function applyFilters() {
+  const cat  = document.getElementById('cat-filter').value;
+  yearFrom   = parseInt(document.getElementById('year-from').value) || null;
+  yearTo     = parseInt(document.getElementById('year-to').value)   || null;
+  const kpis = allKpis.filter(k => !cat || k.category === cat);
+  renderKpis(kpis);
+  if (selectedSlug) {
+    const kpi = kpis.find(k => k.slug === selectedSlug);
+    if (kpi) loadLineChart(selectedSlug, kpi.name, kpi.unit);
+  }
+}
+
+function filterByCategory(slug) {
+  document.getElementById('cat-filter').value = slug;
+  applyFilters();
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelector(`.nav-item[onclick*="${slug}"]`)?.classList.add('active');
+}
+
+// ── Language switch ───────────────────────────
+document.querySelectorAll('.lang-btn').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    lang = btn.dataset.lang;
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    updateI18n();
+    await loadCategories();
+    await loadKpis();
+    await loadGrowth();
+    await loadCompare();
+  });
+});
+
+function updateI18n() {
+  document.getElementById('sl-kpi').firstChild.textContent       = t('kpiSection') + ' ';
+  document.getElementById('sl-charts').firstChild.textContent    = t('chartsSection') + ' ';
+  document.getElementById('sl-growth').firstChild.textContent    = t('growthSection') + ' ';
+  document.getElementById('nav-all-label').textContent           = t('navAll');
+  document.getElementById('fl-cat').textContent                  = t('catFilter');
+  document.getElementById('fl-year').textContent                 = t('yearFilter');
+  document.getElementById('scrape-btn').textContent              = t('refreshBtn');
+  document.getElementById('line-chart-title').textContent        = t('dynamicTitle');
+  document.getElementById('line-chart-sub').textContent          = t('dynamicSub');
+  document.getElementById('bar-chart-title').textContent         = t('cagrTitle');
+  document.getElementById('bar-chart-sub').textContent           = t('cagrSub');
+  document.getElementById('compare-title').textContent           = t('compareTitle');
+  document.getElementById('compare-sub').textContent             = t('compareSub');
+  document.getElementById('logo-title').textContent              = t('logoTitle');
+  document.getElementById('btn-line').textContent                = t('lineBtn');
+  document.getElementById('btn-bar').textContent                 = t('barBtn');
+  document.getElementById('btn-area').textContent                = t('areaBtn');
+}
+
+// ── Realtime filter events ────────────────────
+document.getElementById('cat-filter').addEventListener('change', applyFilters);
+document.getElementById('year-from').addEventListener('change',  applyFilters);
+document.getElementById('year-to').addEventListener('change',    applyFilters);
+
+// ── Utilities ─────────────────────────────────
+function fmtVal(v) {
+  if (v === null || v === undefined) return '—';
+  if (v >= 1e9) return (v/1e9).toFixed(1)+'B';
+  if (v >= 1e6) return (v/1e6).toFixed(1)+'M';
+  if (v >= 1e3) return (v/1e3).toFixed(1)+'K';
+  return parseFloat(v.toFixed(2)).toString();
+}
+
+function truncate(s, n) { return s.length > n ? s.slice(0,n)+'…' : s; }
+
+let _toastTimer;
+function toast(msg, err=false) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.style.borderColor = err ? 'var(--red)' : 'var(--teal)';
+  el.style.color       = err ? 'var(--red)' : 'var(--teal)';
+  el.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// ── Boot ──────────────────────────────────────
+init().catch(err => {
+  console.error(err);
+  document.getElementById('scrape-status').innerHTML =
+    '<span style="color:var(--amber)">⚠ Backend ishlamayapti. Standart rejimda ishlayapti.</span>';
+  // Load standalone demo data if API is unavailable
+  loadStandaloneDemo();
+});
+
+// ── Standalone demo (no backend) ──────────────
+async function loadStandaloneDemo() {
+  const DEMO = {
+    categories: [
+      {id:1,slug:'internet',icon:'🌐',name:'Internet va ulanish'},
+      {id:2,slug:'ict-sector',icon:'💻',name:'AKT sektori'},
+      {id:3,slug:'ecommerce',icon:'🛒',name:'Elektron tijorat'},
+      {id:4,slug:'egovernment',icon:'🏛️',name:'Elektron hukumat'},
+      {id:5,slug:'telecom',icon:'📡',name:'Telekommunikatsiya'},
+      {id:6,slug:'education',icon:'🎓',name:'Raqamli ta\'lim'},
+    ],
+    kpis: [
+      {slug:'internet-users-pct',name:'Internet foydalanuvchilari (%)',unit:'%',category:'internet',icon:'🌐',latest_value:80.1,latest_year:2023,yoy_growth_pct:3.2},
+      {slug:'mobile-subs',name:'Mobil abonentlar',unit:'100 kishiga',category:'internet',icon:'📱',latest_value:97.2,latest_year:2023,yoy_growth_pct:2.5},
+      {slug:'ict-gdp',name:'AKT sektori (YaIM %)',unit:'%',category:'ict-sector',icon:'💻',latest_value:4.1,latest_year:2023,yoy_growth_pct:10.8},
+      {slug:'ict-companies',name:'AKT korxonalari',unit:'dona',category:'ict-sector',icon:'🏢',latest_value:6140,latest_year:2023,yoy_growth_pct:17.8},
+      {slug:'ict-employment',name:'AKT bandligi',unit:'ming kishi',category:'ict-sector',icon:'👩‍💻',latest_value:115.3,latest_year:2023,yoy_growth_pct:18.1},
+      {slug:'software-export',name:'Dasturiy ta\'minot eksporti',unit:'mln. USD',category:'ict-sector',icon:'📦',latest_value:428.6,latest_year:2023,yoy_growth_pct:25.6},
+      {slug:'ecommerce-vol',name:'Elektron tijorat hajmi',unit:'mlrd. so\'m',category:'ecommerce',icon:'🛒',latest_value:22800,latest_year:2023,yoy_growth_pct:60.6},
+      {slug:'online-payments',name:'Onlayn to\'lovlar',unit:'mln. tranzaksiya',category:'ecommerce',icon:'💳',latest_value:1243.5,latest_year:2023,yoy_growth_pct:46.7},
+      {slug:'egov-users',name:'E-hukumat foydalanuvchilari',unit:'mln.',category:'egovernment',icon:'🏛️',latest_value:17.6,latest_year:2023,yoy_growth_pct:34.4},
+      {slug:'online-services',name:'Onlayn davlat xizmatlari',unit:'dona',category:'egovernment',icon:'📋',latest_value:782,latest_year:2023,yoy_growth_pct:9.5},
+      {slug:'4g-coverage',name:'4G qamrov',unit:'%',category:'telecom',icon:'📡',latest_value:89.1,latest_year:2023,yoy_growth_pct:6.7},
+      {slug:'internet-speed',name:'O\'rtacha internet tezligi',unit:'Mb/s',category:'telecom',icon:'⚡',latest_value:42.5,latest_year:2023,yoy_growth_pct:33.6},
+      {slug:'it-graduates',name:'IT bitiruvchilar',unit:'ming kishi',category:'education',icon:'🎓',latest_value:19.8,latest_year:2023,yoy_growth_pct:35.6},
+      {slug:'it-park-residents',name:'IT-Park rezidentlari',unit:'dona',category:'education',icon:'🏗️',latest_value:847,latest_year:2023,yoy_growth_pct:38.4},
+    ],
+    series: {
+      'internet-users-pct': {
+        name:'Internet foydalanuvchilari (%)',unit:'%',
+        series:[{year:2017,value:52.3},{year:2018,value:58.1},{year:2019,value:65.4},{year:2020,value:71.2},{year:2021,value:74.8},{year:2022,value:77.6},{year:2023,value:80.1}]
+      },
+      'ecommerce-vol': {
+        name:'Elektron tijorat hajmi',unit:'mlrd. so\'m',
+        series:[{year:2018,value:1240},{year:2019,value:2180},{year:2020,value:4650},{year:2021,value:8340},{year:2022,value:14200},{year:2023,value:22800}]
+      },
+      'ict-companies': {
+        name:'AKT korxonalari soni',unit:'dona',
+        series:[{year:2017,value:2140},{year:2018,value:2580},{year:2019,value:3120},{year:2020,value:3650},{year:2021,value:4380},{year:2022,value:5210},{year:2023,value:6140}]
+      },
+    },
+    growth: [
+      {slug:'internet-users-pct',name:'Internet foydalanuvchilari',first_year:2017,last_year:2023,first_value:52.3,last_value:80.1,cagr_pct:7.3,total_growth_pct:53.2},
+      {slug:'ecommerce-vol',name:'Elektron tijorat hajmi',first_year:2018,last_year:2023,first_value:1240,last_value:22800,cagr_pct:78.8,total_growth_pct:1739.0},
+      {slug:'online-payments',name:'Onlayn to\'lovlar',first_year:2018,last_year:2023,first_value:82.4,last_value:1243.5,cagr_pct:72.3,total_growth_pct:1408.8},
+      {slug:'it-park-residents',name:'IT-Park rezidentlari',first_year:2018,last_year:2023,first_value:24,last_value:847,cagr_pct:103.5,total_growth_pct:3429.2},
+      {slug:'it-graduates',name:'IT bitiruvchilar',first_year:2018,last_year:2023,first_value:4.2,last_value:19.8,cagr_pct:36.5,total_growth_pct:371.4},
+      {slug:'software-export',name:'Dasturiy ta\'minot eksporti',first_year:2017,last_year:2023,first_value:98.4,last_value:428.6,cagr_pct:27.9,total_growth_pct:335.6},
+      {slug:'ict-employment',name:'AKT sektorida bandlik',first_year:2017,last_year:2023,first_value:48.2,last_value:115.3,cagr_pct:15.6,total_growth_pct:139.2},
+      {slug:'ict-gdp',name:'AKT sektori ulushi',first_year:2017,last_year:2023,first_value:1.8,last_value:4.1,cagr_pct:14.7,total_growth_pct:127.8},
+      {slug:'4g-coverage',name:'4G qamrov',first_year:2017,last_year:2023,first_value:34.1,last_value:89.1,cagr_pct:17.4,total_growth_pct:161.3},
+      {slug:'internet-speed',name:'Internet tezligi',first_year:2018,last_year:2023,first_value:8.4,last_value:42.5,cagr_pct:38.1,total_growth_pct:406.0},
+    ],
+    compare: {
+      'internet-users-pct': {name:'Internet foydalanuvchilari (%)',unit:'%', data:[{year:2017,value:52.3},{year:2018,value:58.1},{year:2019,value:65.4},{year:2020,value:71.2},{year:2021,value:74.8},{year:2022,value:77.6},{year:2023,value:80.1}]},
+      '4g-coverage':        {name:'4G qamrov (%)',unit:'%',                  data:[{year:2017,value:34.1},{year:2018,value:48.2},{year:2019,value:59.7},{year:2020,value:68.4},{year:2021,value:76.2},{year:2022,value:83.5},{year:2023,value:89.1}]},
+      'ict-gdp':            {name:'AKT/YaIM (%)',unit:'%',                   data:[{year:2017,value:1.8},{year:2018,value:2.1},{year:2019,value:2.5},{year:2020,value:2.8},{year:2021,value:3.2},{year:2022,value:3.7},{year:2023,value:4.1}]},
+      'digital-literacy':   {name:'Raqamli savodxonlik (%)',unit:'%',        data:[{year:2019,value:38.4},{year:2020,value:44.2},{year:2021,value:52.7},{year:2022,value:61.3},{year:2023,value:68.9}]},
+    }
+  };
+
+  categories = DEMO.categories;
+  allKpis    = DEMO.kpis;
+  allGrowth  = DEMO.growth;
+
+  renderNav();
+  renderCatFilter();
+  renderKpis(allKpis);
+  renderBarChart(allGrowth);
+  renderGrowthTable(allGrowth);
+  renderCompareChart(DEMO.compare);
+
+  document.getElementById('last-update-text').textContent = 'Demo ma\'lumotlar';
+  document.getElementById('db-count').textContent = `${allKpis.length} ko'rsatkich`;
+  document.getElementById('scrape-status').innerHTML =
+    '<span style="color:var(--amber)">● Standalone rejim – demo ma\'lumotlar ko\'rsatilmoqda</span>';
+
+  // Auto-select first indicator
+  const first = allKpis[0];
+  const demoSeries = DEMO.series[first.slug] || DEMO.series['internet-users-pct'];
+  renderLineChart(demoSeries, demoSeries.name, demoSeries.unit);
+  document.getElementById('line-chart-title').textContent = demoSeries.name;
+  document.getElementById('line-chart-sub').textContent   = `2017 – 2023 • ${demoSeries.unit}`;
+
+  // Click first KPI to highlight
+  document.querySelectorAll('.kpi-card')[0]?.classList.add('selected');
+
+  // Wire KPI cards to demo data
+  document.getElementById('kpi-grid').addEventListener('click', e => {
+    const card = e.target.closest('.kpi-card');
+    if (!card) return;
+    const onclick = card.getAttribute('onclick') || '';
+    const m = onclick.match(/'([^']+)'/);
+    if (!m) return;
+    const slug = m[1];
+    const kpi  = allKpis.find(k => k.slug === slug);
+    if (!kpi) return;
+    document.querySelectorAll('.kpi-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    const s = DEMO.series[slug] || {
+      name: kpi.name, unit: kpi.unit,
+      series: [{year:2020,value:kpi.latest_value*0.7},{year:2021,value:kpi.latest_value*0.82},{year:2022,value:kpi.latest_value*0.92},{year:2023,value:kpi.latest_value}]
+    };
+    renderLineChart(s, s.name, s.unit);
+    document.getElementById('line-chart-title').textContent = kpi.name;
+    document.getElementById('line-chart-sub').textContent   = `${s.series[0].year} – ${s.series.at(-1).year} • ${kpi.unit}`;
+  }, { capture: false });
+
+  // Filter
+  document.getElementById('cat-filter').addEventListener('change', () => {
+    const cat = document.getElementById('cat-filter').value;
+    renderKpis(allKpis.filter(k => !cat || k.category === cat));
+  });
+}
+</script>
+</body>
+</html>
